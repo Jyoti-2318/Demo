@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> To-Do-List</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+    <div class="header">
+    <h2>To-Do List</h2>
+</div>
+    <div class="container">
+        <form id="todo-form">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="current-date" class="form-label">Current Date</label>
+                    <input type="date" id="current-date" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="end-date" class="form-label">End Date</label>
+                    <input type="date" id="end-date" class="form-control" required>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="time" class="form-label">Time</label>
+                    <input type="time" id="time" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="work" class="form-label">Work</label>
+                    <input type="text" id="work" class="form-control" placeholder="Enter your task" required>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-success w-100" onclick="addTask()">Add Task</button>
+        </form>
+
+        <hr class="new">
+
+        <h4 class="mb-3"> Your Tasks</h4>
+        <div id="task-list"></div>
+    </div>
+
+    <script>
+        function setCurrentTime() {
+        var now = new Date();
+        var hours = now.getHours();
+        var minutes = now.getMinutes();
+
+        if (hours < 10) {
+            hours = "0" + hours;
+        }
+        if (minutes < 10) {
+            minutes = "0" + minutes;
+        }
+        document.getElementById('time').value = hours + ":" + minutes;
+    }
+    setCurrentTime();
+
+        document.getElementById('current-date').valueAsDate = new Date();
+
+    function addTask() {
+
+    var currentDate = document.getElementById('current-date').value;
+    var endDate = document.getElementById('end-date').value;
+    var time = document.getElementById('time').value;
+    var work = document.getElementById('work').value;
+
+    let missingFields = [];
+            if (currentDate === "") missingFields.push("Current Date");
+            if (endDate === "") missingFields.push("End Date");
+            if (time === "") missingFields.push("Time");
+            if (work === "") missingFields.push("Work");
+
+            if (missingFields.length > 0) {
+                alert("Please fill the following fields:\n" + missingFields.join("\n"));
+                return false;
+            }
+            
+
+    var taskList = document.getElementById('task-list');
+    var taskItem = document.createElement('div');
+    taskItem.className = 'task-item';
+
+    var details = document.createElement('div');
+    details.className = 'details';
+    details.innerHTML = '<b>Work:</b> ' + work + '<br>' +
+        '<b>Start Date:</b> ' + currentDate + '<br>' +
+        '<b>End Date:</b> ' + endDate + '<br>' +
+        '<b>Time:</b> ' + time;
+
+        var editButton = document.createElement('button');
+            editButton.className = 'btn btn-primary w-5 btn-sm mx-2';
+            editButton.textContent = 'Edit';
+
+            editButton.addEventListener('click', function () {
+                document.getElementById('current-date').value = currentDate;
+                document.getElementById('end-date').value = endDate;
+                document.getElementById('time').value = time;
+                document.getElementById('work').value = work;
+                taskList.removeChild(taskItem); 
+
+            });
+
+    var deleteButton = document.createElement('button');
+    deleteButton.className = 'btn btn-danger btn-sm delete-btn';
+    deleteButton.textContent = 'Delete';
+
+    deleteButton.addEventListener('click', function () {
+        taskList.removeChild(taskItem);
+    });
+
+    taskItem.appendChild(details);
+    taskItem.appendChild(editButton);
+    taskItem.appendChild(deleteButton);
+    taskList.appendChild(taskItem);
+
+    document.getElementById('work').value = '';
+    document.getElementById('end-date').value='';
+
+};
+
+    </script>
+</body>
+</html>

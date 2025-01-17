@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="header">
+        <h2>To-Do List</h2>
+    </div>
+    <div class="container">
+        <form id="todo-form">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="current-date" class="form-label">Start Date</label>
+                    <input type="date" id="current-date" class="form-control" readonly>
+                </div>
+                <div class="col-md-6">
+                    <label for="end-date" class="form-label">End Date</label>
+                    <input type="date" id="end-date" class="form-control">
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="time" class="form-label">Time</label>
+                    <input type="time" id="time" class="form-control" readonly>
+                </div>
+                <div class="col-md-6">
+                    <label for="work" class="form-label">Work</label>
+                    <input type="text" id="work" class="form-control" placeholder="Enter your task">
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="state" class="form-label">State</label>
+                    <select id="state" class="form-select">
+                        <option value="">Select State</option>
+                        <option value="UtterPradesh">UtterPradesh</option>
+                        <option value="Rajasthan">Rajasthan</option>
+                        <option value="Bihar">Bihar</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="city" class="form-label">City</label>
+                    <select id="city" class="form-select">
+                        <option value="">Select City</option>
+                    </select>
+                </div>
+            </div>
+            <button type="submit" id="submit-button" class="btn btn-success w-100">Add Task</button>
+        </form>
+
+        <hr>
+
+        <h4 class="mb-3">Add Task</h4>
+        <div id="task-list"></div>
+    </div>
+
+    <script>
+        let isEditing = false;
+        let editingTask = null;
+
+        const stateCityMap = {
+            "UtterPradesh": ["Ghaziabad", "GorakhPur", "Kanpur", "Noida sector-59", "noida-61"],
+            "Rajasthan": ["Jaipur", "Udaipur", "Jodhpur", "Alwar"],
+            "Bihar": ["patna", "Purnea", "Siwan", "Gopalgang", "Arrah"]
+        };
+
+        window.onload = function () {
+            const currentDateInput = document.getElementById('current-date');
+            const currentTimeInput = document.getElementById('time');
+            const stateInput = document.getElementById('state');
+            const cityInput = document.getElementById('city');
+
+            const today = new Date().toISOString().split('T')[0];
+            currentDateInput.value = today;
+
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            currentTimeInput.value = hours + ":" + minutes;
+
+            stateInput.addEventListener('change', function () {
+                const cities = stateCityMap[stateInput.value] || [];
+                cityInput.innerHTML = '<option value="">Select City</option>';
+                cities.forEach(city => {
+                    const option = document.createElement('option');
+                    option.value = city;
+                    option.textContent = city;
+                    cityInput.appendChild(option);
+                });
+            });
+        };
+
+        document.getElementById('todo-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const endDate = document.getElementById('end-date').value;
+            const work = document.getElementById('work').value;
+            const state = document.getElementById('state').value;
+            const city = document.getElementById('city').value;
+
+            if (!endDate && !work && !state && !city) {
+                alert("Fill All");
+                return;
+            }
+            if (!endDate) {
+                alert("Please select an End Date.");
+                return;
+            }
+            if (!work && !state && !city) {
+                alert("Fill work state or city");
+                return;
+            }
+            if (!work) {
+                alert("Please enter the Work.");
+                return;
+            }
+            if (!state && !city) {
+                alert("Fill State or city");
+                return;
+            }
+            if (!state) {
+                alert("Please select a State.");
+                return;
+            }
+            if (!city) {
+                alert("Please select a City.");
+                return;
+            }
+
+            if (isEditing) {
+    editingTask.querySelector('.details').innerHTML =
+        "<b>Work:</b> " + work + "<br>" +
+        "<b>Start Date:</b> " + document.getElementById('current-date').value + "<br>" +
+        "<b>End Date:</b> " + endDate + "<br>" +
+        "<b>State:</b> " + state + "<br>" +
+        "<b>City:</b> " + city;
+    resetForm();
+}
+
+             else {
+                const taskList = document.getElementById('task-list');
+                const taskItem = document.createElement('div');
+                taskItem.className = 'task-item';
+
+                taskItem.innerHTML = 
+    '<div class="details">' +
+        '<b>Work:</b> ' + work + '<br>' +
+        '<b>Start Date:</b> ' + document.getElementById('current-date').value + '<br>' +
+        '<b>End Date:</b> ' + endDate + '<br>' +
+        '<b>State:</b> ' + state + '<br>' +
+        '<b>City:</b> ' + city +
+    '</div>' +
+    '<button class="btn btn-primary btn-sm">Edit</button>' +
+    '<button class="btn btn-danger btn-sm">Delete</button>';
+
+
+                taskItem.querySelector('.btn-primary').addEventListener('click', function () {
+                    document.getElementById('work').value = work;
+                    document.getElementById('state').value = state;
+                    document.getElementById('city').value = city;
+                    document.getElementById('end-date').value = endDate;
+                    isEditing = true;
+                    editingTask = taskItem;
+                    document.getElementById('submit-button').textContent = 'Update Task';
+                });
+
+                taskItem.querySelector('.btn-danger').addEventListener('click', function () {
+                    taskList.removeChild(taskItem);
+                });
+
+                taskList.appendChild(taskItem);
+            }
+
+            resetForm();
+        });
+
+        function resetForm() {
+            isEditing = false;
+            editingTask = null;
+            document.getElementById('todo-form').reset();
+            document.getElementById('submit-button').textContent = 'Add Task';
+            document.getElementById('state').dispatchEvent(new Event('change'));
+
+            const currentDateInput = document.getElementById('current-date');
+            const currentTimeInput = document.getElementById('time');
+            const today = new Date().toISOString().split('T')[0];
+            currentDateInput.value = today;
+
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            currentTimeInput.value = hours + ":" + minutes;
+        }
+    </script>
+</body>
+
+</html>
